@@ -1,0 +1,38 @@
+[Unit]
+Description=Tomcat Demo Instance #%i
+
+# Requirements
+Requires=etcd.service
+Requires=docker.service
+
+# Dependency ordering
+After=etcd.service
+After=docker.service
+
+[Service]
+TimeoutStartSec=0
+KillMode=none
+Restart=always
+
+# Pre-start and Start
+## Directives with "=-" are allowed to fail without consequence
+ExecStartPre=-/usr/bin/docker kill tomcat-demo.%i
+ExecStartPre=-/usr/bin/docker rm tomcat-demo.%i
+ExecStartPre=/usr/bin/docker pull paresh/tomcatdemo
+ExecStart=/usr/bin/docker run \
+  --name tomcat-demo.%i \
+  --rm \
+  -m 20484M \
+  -e SERVICE_8080_NAME=tomcat-demo \
+  -e SERVICE_8080_CHECK_HTTP=/sample \
+  -e SERVICE_8080_CHECK_INTERVAL=20s \
+  -e SERVICE_8080_CHECK_TTL=30s \
+  -e SERVICE_TAGS=qa \
+  -p 8085:8080 \
+  paresh/tomcatdemo
+
+# Stop
+ExecStop=/usr/bin/docker stop tomcat-demo.%i
+
+[X-Fleet]
+MachineMetadata="dc=Las Vegas" "stack=Tomcat"
