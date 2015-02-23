@@ -1,4 +1,4 @@
-FROM jeanblanchard/busybox-java:8
+FROM paresh/java:7
 
 ENV TOMCAT_MAJOR 7
 ENV TOMCAT_VERSION 7.0.57
